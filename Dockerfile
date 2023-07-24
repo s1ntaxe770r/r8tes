@@ -13,6 +13,8 @@ FROM rust:${RUST_VERSION}-slim-bullseye AS build
 ARG APP_NAME
 WORKDIR /app
 
+
+COPY . .
 RUN cargo build --locked --release
 RUN cp ./target/release/$APP_NAME /bin/server
 
