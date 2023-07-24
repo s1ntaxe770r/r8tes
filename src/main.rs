@@ -25,7 +25,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let custom_resource: CustomResourceDefinition = RateCache::crd();
 
     let crd: Api<CustomResourceDefinition> = Api::all(client.clone());
-
     // Create the CRD and ignore results as it will fail if it already exists
     let _ = crd.create(&Default::default(), &custom_resource).await;
 
