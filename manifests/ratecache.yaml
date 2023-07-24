@@ -1,0 +1,9 @@
+apiVersion: operators.gopher.net/v1 
+kind: RateCache 
+metadata: 
+  name: rcexample 
+spec:
+  # The name of the rate cache
+  name: rcexample
+  # The name of the rate cache
+
