@@ -13,6 +13,7 @@ spec:
       labels:
         app: rates-controller-manager
     spec:
+      serviceAccount: rates-sa 
       containers:
       - name: rates-controller-manager
         image: ghcr.io/s1ntaxe770r/r8tes:47ba0e20f9eaed918597853a3d260e642cabe568
