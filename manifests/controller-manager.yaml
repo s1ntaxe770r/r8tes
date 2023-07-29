@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rates-controller-manager
+  namespace: rates 
+spec:
+  selector:
+    matchLabels:
+      app: rates-controller-manager
+  template:
+    metadata:
+      labels:
+        app: rates-controller-manager
+    spec:
+      containers:
+      - name: rates-controller-manager
+        image: ghcr.io/s1ntaxe770r/r8tes:47ba0e20f9eaed918597853a3d260e642cabe568
+        env:
+        - name: RUST_LOG
+          value: info
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"        
+        ports:
+        - containerPort: 9443
+---
+# service for controller manager
+apiVersion: v1
+kind: Service
+metadata:
+  name: rates-controller-manager-service
+  namespace: rates  
+spec:
+  selector:
+    app: rates-controller-manager
+  ports:
+    - protocol: TCP
+      port: 9443
+      targetPort: 9443
