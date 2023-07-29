@@ -5,6 +5,7 @@ metadata:
   name: rates-controller-manager
   namespace: rates 
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: rates-controller-manager
@@ -16,7 +17,7 @@ spec:
       serviceAccount: rates-sa 
       containers:
       - name: rates-controller-manager
-        image: ghcr.io/s1ntaxe770r/r8tes:47ba0e20f9eaed918597853a3d260e642cabe568
+        image: ghcr.io/s1ntaxe770r/r8tes:f95c152c4ed07275e604aeeff40fea0d5c204a59
         env:
         - name: RUST_LOG
           value: info
