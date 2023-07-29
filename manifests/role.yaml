@@ -1,17 +1,30 @@
+---
+apiVersion: v1 
+kind: Namespace 
+metadata:
+  name: rates 
+---
+# service account for controller manager
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rates-sa
+  namespace: rates
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role 
 metadata:
-  name: rates-deployment-manager 
+  name: rates-controller-manager 
   namespace: rates 
 rules: 
 - apiGroups: ["apps"]
-  resources: ["deployments"]
+  resources: ["controllers"]
   verbs: ["get","list","watch","create","update","delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: rates-deployment-manager
+  name: rates-controller-manager
   namespace: rates 
 subjects:
 - kind: ServiceAccount
@@ -19,6 +32,6 @@ subjects:
   namespace: rates 
 roleRef:
   kind: Role
-  name: rates-deployment-manager
+  name: rates-controller-manager
   apiGroup: rbac.authorization.k8s.io
 
