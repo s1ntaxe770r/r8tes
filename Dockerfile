@@ -1,10 +1,9 @@
 FROM rust:1.67 AS builder
-WORKDIR /usr/src/rates
 COPY . .
-RUN cargo install --path .
+RUN cargo build --release
 
-FROM debian:bullseye-slim
+FROM debian:buster-slim
 RUN apt-get update && apt-get install -y extra-runtime-dependencies && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local/cargo/bin/rates /usr/local/bin/rates
+COPY --from=builder ./target/release/r8tes ./target/release/r8tes   
 ENV RUST_LOG=info
-CMD ["rates"]
+CMD ["/target/release/r8tes"]
