@@ -1,15 +1,15 @@
-FROM rust:1.67 AS builder
+FROM rust:1.67 as builder
+WORKDIR /usr/src/app
 COPY . .
 RUN cargo build --release
 
-FROM debian:bullseye
-
-RUN apt-get update \
- && apt-get install -y --force-yes --no-install-recommends ca-certificates libssl-dev \
- && apt-get clean \
- && apt-get autoremove \
- && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder ./target/release/r8tes ./target/release/r8tes   
+FROM ubuntu:20.04 as final
+RUN apt-get update && apt-get install -y openssl ca-certificates
+RUN update-ca-certificates
+RUN apt-get install -y libssl-dev
+RUN rm -rf /var/lib/apt/lists/*
+EXPOSE 8080
 ENV RUST_LOG=info
-CMD ["/target/release/r8tes"]
+#RUN apt-get update && apt-get install -y extra-runtime-dependencies && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /usr/src/app/target/release/r8tes /usr/local/bin/r8tes
+CMD ["r8tes"]
