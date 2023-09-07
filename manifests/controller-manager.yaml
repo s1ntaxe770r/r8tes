@@ -17,7 +17,8 @@ spec:
       serviceAccount: rates-sa 
       containers:
       - name: rates-controller-manager
-        image: ghcr.io/s1ntaxe770r/r8tes:f95c152c4ed07275e604aeeff40fea0d5c204a59
+        image: ghcr.io/s1ntaxe770r/r8tes:v1
+      
         env:
         - name: RUST_LOG
           value: info

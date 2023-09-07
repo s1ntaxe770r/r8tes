@@ -2,6 +2,7 @@ apiVersion: operators.gopher.net/v1
 kind: RateCache 
 metadata: 
   name: rcexample 
+  namespace: rates
 spec:
   # The name of the rate cache
   name: rcexample
