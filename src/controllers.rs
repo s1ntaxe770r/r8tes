@@ -1,7 +1,7 @@
 use crate::resources::RateCache;
 use anyhow::Result;
 use k8s_openapi::api::apps::v1::Deployment;
-use kube::{runtime::controller::Action, Api, client, Client};
+use kube::{client, runtime::controller::Action, Api, Client};
 
 use log::info;
 use std::sync::Arc;
@@ -17,8 +17,7 @@ pub enum Error {
 }
 
 /// The reconciler that will be called when either object change
-pub async fn reconciler(g: Arc<RateCache>, _ctx: Arc<()> ) -> Result<Action, Error> {
-  
+pub async fn reconciler(g: Arc<RateCache>, _ctx: Arc<()>) -> Result<Action, Error> {
     let client = Client::try_default().await.unwrap();
     let deploy_name = Arc::clone(&g);
     info!("creating cache");
@@ -31,18 +30,15 @@ pub fn error_policy(obj: Arc<RateCache>, _error: &Error, _ctx: Arc<()>) -> Actio
     Action::requeue(Duration::from_secs(60))
 }
 
-
-async fn create_redis_deployment(name: String , client:kube::Client)  {
-
-    let  deployment = Api::<Deployment>::all(client.clone());
-    let image_name = name+"-r8s";
+async fn create_redis_deployment(name: String, client: kube::Client) {
+    let deployment = Api::<Deployment>::all(client.clone());
+    let image_name = name + "-r8s";
 
     // create redis deployment with redis alpine image
-    let mut  dep =  Deployment::default();
+    let mut dep = Deployment::default();
     // set deployment namespace
     dep.metadata.namespace = Some("rates".to_string());
-
-
+    // set deployment name
     dep.spec = Some(k8s_openapi::api::apps::v1::DeploymentSpec {
         replicas: Some(1),
         selector: k8s_openapi::apimachinery::pkg::apis::meta::v1::LabelSelector {
@@ -56,15 +52,14 @@ async fn create_redis_deployment(name: String , client:kube::Client)  {
             }),
             spec: Some(k8s_openapi::api::core::v1::PodSpec {
                 containers: vec![k8s_openapi::api::core::v1::Container {
-                    ports: Some(vec![k8s_openapi::api::core::v1::ContainerPort{
+                    ports: Some(vec![k8s_openapi::api::core::v1::ContainerPort {
                         container_port: 6379,
                         protocol: Some("TCP".to_string()),
                         ..Default::default()
-
                     }]),
                     name: image_name.clone().to_string(),
                     image: Some("redis:alpine".to_string()),
-                
+
                     ..Default::default()
                 }],
                 ..Default::default()
@@ -73,11 +68,10 @@ async fn create_redis_deployment(name: String , client:kube::Client)  {
         ..Default::default()
     });
 
-    let dep = deployment.create(&Default::default(), &dep).await;
+    let dep = deployment.create("rates".to_string(), &dep).await;
 
     match dep {
         Ok(o) => info!("created {:?}", o),
         Err(e) => info!("create failed: {}", e),
     }
-  
 }

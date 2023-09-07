@@ -29,6 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _ = crd.create(&Default::default(), &custom_resource).await;
 
     let rc = Api::<RateCache>::all(client.clone());
+
     let context = Arc::new(());
     info!("starting controller");
     // intialize controller
