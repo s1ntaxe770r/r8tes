@@ -68,7 +68,7 @@ async fn create_redis_deployment(name: String, client: kube::Client) {
         ..Default::default()
     });
 
-    let dep = deployment.create("rates".to_string(), &dep).await;
+    let dep = deployment.create(&Default::default(), &dep).await;
 
     match dep {
         Ok(o) => info!("created {:?}", o),

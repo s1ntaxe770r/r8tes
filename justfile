@@ -15,6 +15,6 @@ deploy:
 run:
 	RUST_LOG=info cargo run -q
 
-
-
+watch:
+  cargo watch -c -w src -x run
 
