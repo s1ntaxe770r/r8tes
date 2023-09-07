@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN cargo build --release
 
-FROM debian:bullseye as final
+FROM ubuntu:20.04 as final
 RUN apt-get update && apt-get install -y openssl ca-certificates
 RUN update-ca-certificates
 RUN apt-get install -y libssl-dev
