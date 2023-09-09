@@ -1,4 +1,3 @@
-
 use kube::CustomResource;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -12,4 +11,3 @@ use serde::{Deserialize, Serialize};
     shortname = "rcc"
 )]
 pub struct RateCacheSpec {}
-
