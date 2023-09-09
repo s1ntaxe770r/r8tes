@@ -1,9 +1,11 @@
 use crate::resources::RateCache;
 use anyhow::Result;
+use futures::future::ok;
 use k8s_openapi::{
     api::{
         apps::v1::{Deployment, DeploymentSpec},
-        core::v1::{Container, ContainerPort, PodSpec, PodTemplateSpec},
+        core::v1::Service,
+        core::v1::{Container, ContainerPort, PodSpec, PodTemplateSpec, ServicePort, ServiceSpec},
     },
     apimachinery::pkg::apis::meta::v1::LabelSelector,
 };
@@ -14,6 +16,7 @@ use kube::{
 use serde_json::json;
 use std::collections::BTreeMap;
 
+use log::error;
 use log::info;
 use std::sync::Arc;
 use thiserror::Error;
@@ -40,6 +43,34 @@ pub async fn reconciler(g: Arc<RateCache>, _ctx: Arc<()>) -> Result<Action, Erro
 /// object that caused the failure and the actual error
 pub fn error_policy(obj: Arc<RateCache>, _error: &Error, _ctx: Arc<()>) -> Action {
     Action::requeue(Duration::from_secs(60))
+}
+
+async fn create_service(deployment_name: &str, service_name: &str) -> Service {
+    let service: Service = Service {
+        metadata: ObjectMeta {
+            name: Some(service_name.to_owned()),
+            namespace: Some("rates".to_owned()), // Set your desired namespace
+            ..ObjectMeta::default()
+        },
+        spec: Some(ServiceSpec {
+            selector: Some({
+                let mut labels = std::collections::BTreeMap::new();
+                labels.insert("app".to_owned(), "my-app".to_owned()); // Match the labels in the Deployment
+                labels
+            }),
+            ports: Some(vec![ServicePort {
+                port: 80, // Expose service on port 80
+                target_port: Some(
+                    k8s_openapi::apimachinery::pkg::util::intstr::IntOrString::Int(6379),
+                ), // Match the container port in the Deployment
+                ..ServicePort::default()
+            }]),
+            ..ServiceSpec::default()
+        }),
+        ..Service::default()
+    };
+
+    service
 }
 
 async fn create_redis_deployment(name: String, client: kube::Client) {
@@ -91,8 +122,4 @@ async fn create_redis_deployment(name: String, client: kube::Client) {
         ..Deployment::default()
     };
     let dep = deployment.create(&PostParams::default(), &dep).await;
-    match dep {
-        Ok(o) => info!("created {:?}", o),
-        Err(e) => info!("create failed: {}", e),
-    }
 }
